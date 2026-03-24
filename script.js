@@ -533,10 +533,6 @@ document.addEventListener('DOMContentLoaded', () => {
             // Reconstruir cabinas
             const cabinKeys = keys.filter(k => k.startsWith(`tipo-cabina-${cId}-`));
             cabinKeys.forEach((_, index) => addCabinToCruise(cId));
-            // Reconstruir tabla si hay datos
-            if(keys.some(k => k.startsWith(`itin-port-${cId}-`))) {
-                setTimeout(() => generateItineraryTable(cId), 50);
-            }
         });
         
         if(keys.includes('ciudad-salida')) addSection('flights');
@@ -544,6 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(keys.includes('transfer-1-desc')) addSection('transfers');
 
         setTimeout(() => {
+            // 1. Llenar todos los valores básicos primero (incluyendo fechas)
             keys.forEach(key => {
                 const el = document.getElementById(key);
                 if(el) {
@@ -558,8 +555,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
             
-            // Mostrar sub-módulos si tienen datos
-            ['flight', 'tour', 'transfer'].forEach(type => {
+            // 2. AHORA generar las tablas de itinerario (porque ya tienen fecha)
+            cruiseIds.forEach(cId => {
+                if(keys.some(k => k.startsWith(`itin-port-${cId}-`))) {
+                    generateItineraryTable(cId);
+                    // 3. Volver a llenar los inputs de la tabla que se acaban de generar
+                    keys.filter(k => k.startsWith(`itin-port-${cId}-`) || k.startsWith(`itin-arr-${cId}-`) || k.startsWith(`itin-dep-${cId}-`)).forEach(k => {
+                        const el = document.getElementById(k);
+                        if(el) el.value = data.formData[k];
+                    });
+                }
+            });
+
+            // Mostrar sub-módulos si tienen datos['flight', 'tour', 'transfer'].forEach(type => {
                 [2, 3].forEach(num => {
                     if(keys.some(k => k.startsWith(`${type}-${num}-`) && data.formData[k])) {
                         const wrapper = document.getElementById(`${type}-${num}-form-wrapper`);
@@ -613,7 +621,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function formatDate(dateStr) {
         if (!dateStr) return 'N/A';
         const [year, month, day] = dateStr.split('-');
-        return `${day}/${month}/${year}`;
+        const date = new Date(year, month - 1, day);
+        return date.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
     }
 
     function populateQuote() {
