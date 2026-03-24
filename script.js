@@ -567,8 +567,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            // Mostrar sub-módulos si tienen datos['flight', 'tour', 'transfer'].forEach(type => {
-                [2, 3].forEach(num => {
+            // Mostrar sub-módulos si tienen datos
+            ['flight', 'tour', 'transfer'].forEach(type => {[2, 3].forEach(num => {
                     if(keys.some(k => k.startsWith(`${type}-${num}-`) && data.formData[k])) {
                         const wrapper = document.getElementById(`${type}-${num}-form-wrapper`);
                         const btn = document.getElementById(`btn-add-${type}-${num}`);
