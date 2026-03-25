@@ -17,7 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-    const storage = firebase.storage();
 
     // --- VARIABLES GLOBALES ---
     let currentTRM = 0; 
@@ -96,8 +95,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- COMPRESIÓN SÚPER AGRESIVA (PREVENCIÓN DE LÍMITE 1MB) ---
-    function compressImage(base64Str, maxWidth = 500, quality = 0.4) {
+   
+    // --- COMPRESIÓN MEJORADA (MÁS CALIDAD) ---
+    function compressImage(base64Str, maxWidth = 800, quality = 0.75) {
         return new Promise((resolve) => {
             let img = new Image();
             img.src = base64Str;
@@ -401,15 +401,43 @@ document.addEventListener('DOMContentLoaded', () => {
             reader.onload = async event => {
                 const base64Image = event.target.result;
                 const compressedImage = await compressImage(base64Image); 
+                
                 const previewImg = pasteArea.querySelector('img');
+                const removeBtn = pasteArea.querySelector('.remove-img-btn');
+                const pTag = pasteArea.querySelector('p');
+                
                 previewImg.src = compressedImage;
                 previewImg.style.display = 'block';
-                pasteArea.querySelector('p').style.display = 'none';
+                
+                if(pTag) pTag.style.display = 'none';
+                if(removeBtn) removeBtn.style.display = 'flex'; // Muestra la X al pegar
+                
                 pastedImages[imageId] = compressedImage;
             };
             reader.readAsDataURL(item.getAsFile());
         }
     }
+
+    // Lógica para borrar imágenes (La 'X' roja)
+    form.addEventListener('click', e => {
+        if (e.target.matches('.remove-img-btn')) {
+            e.preventDefault();
+            e.stopPropagation();
+            const pasteArea = e.target.closest('.paste-area');
+            const imageId = pasteArea.dataset.imgId;
+            const imgElement = pasteArea.querySelector('img');
+            const pTag = pasteArea.querySelector('p'); // Busca la etiqueta P normal
+            
+            // Borrar de la memoria
+            delete pastedImages[imageId];
+            
+            // Restaurar el cuadro visualmente
+            imgElement.src = '';
+            imgElement.style.display = 'none';
+            e.target.style.display = 'none';
+            if(pTag) pTag.style.display = 'block'; // Vuelve a mostrar el texto
+        }
+    });
 
     function addEventListenersToSection(sectionElement) {
         sectionElement.querySelectorAll('.paste-area').forEach(area => area.addEventListener('paste', handlePaste));
