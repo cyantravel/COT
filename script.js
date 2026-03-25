@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+    const storage = firebase.storage();
 
     // --- VARIABLES GLOBALES ---
     let currentTRM = 0; 
@@ -320,6 +321,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const { section, subsection } = target.dataset;
         
         if (target.matches('.add-section-btn')) addSection(section);
+
+       // Lógica para borrar imágenes (La 'X' roja)
+        if (target.matches('.remove-img-btn')) {
+            e.preventDefault();
+            e.stopPropagation();
+            const pasteArea = target.closest('.paste-area');
+            const imageId = pasteArea.dataset.imgId;
+            const imgElement = pasteArea.querySelector('img');
+            const placeholder = pasteArea.querySelector('.paste-placeholder');
+            
+            // Borrar de la memoria
+            delete pastedImages[imageId];
+            
+            // Restaurar el cuadro visualmente
+            imgElement.src = '';
+            imgElement.style.display = 'none';
+            target.style.display = 'none';
+            if(placeholder) placeholder.style.display = 'block';
+        }
         
         // Eliminar módulos principales (Ignorando el botón de eliminar cabinas)
         if (target.matches('.remove-section-btn') && !target.matches('.remove-cabin-btn')) {
@@ -586,10 +606,14 @@ document.addEventListener('DOMContentLoaded', () => {
             Object.keys(pastedImages).forEach(imgId => {
                 const pasteArea = document.querySelector(`[data-img-id="${imgId}"]`);
                 if(pasteArea) {
-                    pasteArea.querySelector('img').src = pastedImages[imgId];
-                    pasteArea.querySelector('img').style.display = 'block';
-                    const pTag = pasteArea.querySelector('p');
+                    const imgEl = pasteArea.querySelector('img');
+                    const pTag = pasteArea.querySelector('.paste-placeholder');
+                    const removeBtn = pasteArea.querySelector('.remove-img-btn');
+
+                    imgEl.src = pastedImages[imgId];
+                    imgEl.style.display = 'block';
                     if(pTag) pTag.style.display = 'none';
+                    if(removeBtn) removeBtn.style.display = 'flex';
                 }
             });
             
