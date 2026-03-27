@@ -641,8 +641,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     const pTag = pasteArea.querySelector('.paste-placeholder');
                     const removeBtn = pasteArea.querySelector('.remove-img-btn');
 
-                    imgEl.crossOrigin = "anonymous";
-                    imgEl.src = pastedImages[imgId];
+                    imgEl.setAttribute('crossOrigin', 'anonymous');
+                    // Truco anti-caché
+                    let imgSrc = pastedImages[imgId];
+                    imgSrc = imgSrc + (imgSrc.includes('?') ? '&' : '?') + 't=' + new Date().getTime();
+                    
+                    imgEl.src = imgSrc;
                     imgEl.style.display = 'block';
                     if(pTag) pTag.style.display = 'none';
                     if(removeBtn) removeBtn.style.display = 'flex';
@@ -999,9 +1003,32 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('process-quote-btn').addEventListener('click', async () => {
         document.getElementById('loader-overlay').style.display = 'flex';
         document.getElementById('loader-text').textContent = "Generando PDF...";
+        
         try {
             const elementToPrint = document.getElementById('voucher-to-print');
-            const canvas = await html2canvas(elementToPrint, { scale: 2, useCORS: true });
+            
+            // --- PARCHE CORS DEFINITIVO ---
+            // Forzar crossOrigin="anonymous" en TODAS las imágenes antes de tomar la foto
+            const images = elementToPrint.getElementsByTagName('img');
+            for (let i = 0; i < images.length; i++) {
+                // Solo aplicar a imágenes que vengan de Firebase Storage
+                if (images[i].src.includes('firebasestorage')) {
+                    images[i].setAttribute('crossOrigin', 'anonymous');
+                    // Truco para forzar al navegador a recargar la imagen sin caché
+                    images[i].src = images[i].src + (images[i].src.includes('?') ? '&' : '?') + 't=' + new Date().getTime();
+                }
+            }
+
+            // Esperar un segundito para que el navegador recargue las imágenes con el nuevo permiso
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            // ------------------------------
+
+            const canvas = await html2canvas(elementToPrint, { 
+                scale: 2, 
+                useCORS: true,
+                allowTaint: false // Asegurarnos de que no intente "ensuciar" el canvas
+            });
+            
             const pdf = new window.jspdf.jsPDF({ orientation: 'p', unit: 'px', format:[canvas.width, canvas.height] });
             pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, canvas.width, canvas.height);
             
@@ -1023,8 +1050,11 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             pdf.save(`${document.getElementById('cotizacion-numero').value}.pdf`);
-        } catch (error) { alert("Error generando PDF"); } 
-        finally { document.getElementById('loader-overlay').style.display = 'none'; }
+        } catch (error) { 
+            console.error("Error generando PDF:", error);
+            alert("Error generando PDF. Revisa la consola para más detalles."); 
+        } finally { 
+            document.getElementById('loader-overlay').style.display = 'none'; 
+        }
     });
-
 });
