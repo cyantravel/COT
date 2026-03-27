@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+    const storage = firebase.storage();
 
     // --- VARIABLES GLOBALES ---
     let currentTRM = 0; 
@@ -95,22 +96,49 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-   
-    // --- COMPRESIÓN MEJORADA (MÁS CALIDAD) ---
-    function compressImage(base64Str, maxWidth = 800, quality = 0.75) {
-        return new Promise((resolve) => {
-            let img = new Image();
-            img.src = base64Str;
-            img.onload = () => {
-                let canvas = document.createElement('canvas');
-                let width = img.width; let height = img.height;
-                if (width > maxWidth) { height = Math.round((height * maxWidth) / width); width = maxWidth; }
-                canvas.width = width; canvas.height = height;
-                let ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
-                resolve(canvas.toDataURL('image/jpeg', quality));
-            };
-        });
+   // --- SUBIDA DE IMÁGENES EN HD A FIREBASE STORAGE ---
+    async function handlePaste(e) {
+        e.preventDefault();
+        const pasteArea = e.currentTarget; 
+        const imageId = pasteArea.dataset.imgId;
+        const item = Array.from(e.clipboardData.items).find(i => i.type.startsWith('image/'));
+        
+        if (item) {
+            const file = item.getAsFile();
+            const pTag = pasteArea.querySelector('p');
+            const imgElement = pasteArea.querySelector('img');
+            const removeBtn = pasteArea.querySelector('.remove-img-btn');
+            const spinner = pasteArea.querySelector('.loader-spinner');
+
+            // Mostrar estado de "Cargando..."
+            if(pTag) pTag.style.display = 'none';
+            if(imgElement) imgElement.style.display = 'none';
+            if(removeBtn) removeBtn.style.display = 'none';
+            if(spinner) spinner.style.display = 'block';
+
+            try {
+                // Crear un nombre único para la foto y subirla a la nube
+                const uniqueName = `cotizaciones/${Date.now()}_${Math.random().toString(36).substring(2, 8)}.jpg`;
+                const storageRef = storage.ref(uniqueName);
+                
+                const snapshot = await storageRef.put(file);
+                const downloadURL = await snapshot.ref.getDownloadURL(); // Obtener el link HD
+
+                // Mostrar la foto en pantalla
+                imgElement.src = downloadURL;
+                imgElement.style.display = 'block';
+                if(removeBtn) removeBtn.style.display = 'flex';
+                
+                // Guardar el link en la memoria de la cotización
+                pastedImages[imageId] = downloadURL;
+            } catch (error) {
+                console.error("Error subiendo imagen:", error);
+                alert("Hubo un error subiendo la imagen. Revisa tu conexión a internet.");
+                if(pTag) pTag.style.display = 'block';
+            } finally {
+                if(spinner) spinner.style.display = 'none';
+            }
+        }
     }
 
     // --- LÓGICA DE LOGIN ---
@@ -391,32 +419,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('is-group-booking').addEventListener('change', (e) => {
         document.getElementById('group-booking-fields').style.display = e.target.checked ? 'grid' : 'none';
     });
-
-    async function handlePaste(e) {
-        e.preventDefault();
-        const pasteArea = e.currentTarget; const imageId = pasteArea.dataset.imgId;
-        const item = Array.from(e.clipboardData.items).find(i => i.type.startsWith('image/'));
-        if (item) {
-            const reader = new FileReader();
-            reader.onload = async event => {
-                const base64Image = event.target.result;
-                const compressedImage = await compressImage(base64Image); 
-                
-                const previewImg = pasteArea.querySelector('img');
-                const removeBtn = pasteArea.querySelector('.remove-img-btn');
-                const pTag = pasteArea.querySelector('p');
-                
-                previewImg.src = compressedImage;
-                previewImg.style.display = 'block';
-                
-                if(pTag) pTag.style.display = 'none';
-                if(removeBtn) removeBtn.style.display = 'flex'; // Muestra la X al pegar
-                
-                pastedImages[imageId] = compressedImage;
-            };
-            reader.readAsDataURL(item.getAsFile());
-        }
-    }
 
     // Lógica para borrar imágenes (La 'X' roja)
     form.addEventListener('click', e => {
