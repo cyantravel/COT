@@ -125,6 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const downloadURL = await snapshot.ref.getDownloadURL(); // Obtener el link HD
 
                 // Mostrar la foto en pantalla
+                imgElement.crossOrigin = "anonymous";
                 imgElement.src = downloadURL;
                 imgElement.style.display = 'block';
                 if(removeBtn) removeBtn.style.display = 'flex';
@@ -640,6 +641,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const pTag = pasteArea.querySelector('.paste-placeholder');
                     const removeBtn = pasteArea.querySelector('.remove-img-btn');
 
+                    imgEl.crossOrigin = "anonymous";
                     imgEl.src = pastedImages[imgId];
                     imgEl.style.display = 'block';
                     if(pTag) pTag.style.display = 'none';
