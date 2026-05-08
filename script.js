@@ -414,6 +414,36 @@ document.addEventListener('DOMContentLoaded', () => {
         if (target.matches('.generate-itinerary-btn')) {
             generateItineraryTable(target.dataset.target);
         }
+        
+        if (target.matches('.fill-ctg-btn')) {
+            const cruiseId = target.dataset.target;
+            const nightsInput = document.getElementById(`noches-crucero-${cruiseId}`);
+            if (nightsInput) nightsInput.value = "7";
+            
+            generateItineraryTable(cruiseId);
+            
+            setTimeout(() => {
+                const route = [
+                    { port: "Cartagena", arr: "-", dep: "18:00" },
+                    { port: "Navegación", arr: "-", dep: "-" },
+                    { port: "Oranjestad, Aruba", arr: "08:00", dep: "23:00" },
+                    { port: "Willemstad, Curazao", arr: "08:00", dep: "18:00" },
+                    { port: "Navegación", arr: "-", dep: "-" },
+                    { port: "Navegación", arr: "-", dep: "-" },
+                    { port: "Colón, Panamá", arr: "07:00", dep: "16:00" },
+                    { port: "Cartagena", arr: "09:00", dep: "-" }
+                ];
+                
+                route.forEach((day, i) => {
+                    const p = document.getElementById(`itin-port-${cruiseId}-${i}`);
+                    const a = document.getElementById(`itin-arr-${cruiseId}-${i}`);
+                    const d = document.getElementById(`itin-dep-${cruiseId}-${i}`);
+                    if(p) p.value = day.port;
+                    if(a) a.value = day.arr;
+                    if(d) d.value = day.dep;
+                });
+            }, 100);
+        }
     });
 
     // Toggle para Reserva de Grupo
@@ -777,8 +807,8 @@ document.addEventListener('DOMContentLoaded', () => {
             let mapHTML = pastedImages[`crucero-${num}-mapa`] ? `<div class="single-photo-container"><img src="${pastedImages[`crucero-${num}-mapa`]}"></div>` : '';
             
             const logoUrl = NAVIERA_LOGOS[naviera];
-            // Logo limpio, sin fondo blanco forzado, más grande y elegante
-            const logoHTML = logoUrl ? `<img src="${logoUrl}" alt="${naviera}" style="max-height: 60px; max-width: 200px; object-fit: contain;">` : '';
+            // Logo limpio, sin fondo blanco forzado, más grande y elegante (aumentado a 85px max-height)
+            const logoHTML = logoUrl ? `<img src="${logoUrl}" alt="${naviera}" style="max-height: 85px; max-width: 220px; object-fit: contain;">` : '';
 
             // Construir Tabla de Itinerario si existe
             let itineraryHTML = '';

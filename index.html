@@ -73,7 +73,7 @@
                         <div class="form-group"><label for="jovenes">Jóvenes (12-17)</label><select id="jovenes"></select></div>
                         <div class="form-group"><label for="ninos">Niños (0-11)</label><select id="ninos"></select></div>
                         <div class="form-group full-width"><label for="validez-cupos">Validez de la Oferta</label><input type="text" id="validez-cupos" required value="Debido a la alta demanda de este crucero, los precios varían sin previo aviso por lo que la cotización es válida únicamente por el día de hoy."></div>
-                        <div class="form-group full-width"><label for="cotizacion-numero">Nº Cotización</label><input type="text" id="cotizacion-numero" readonly></div>
+                        <div class="form-group full-width"><label for="cotizacion-numero">Nº Cotización</label><input type="text" id="cotizacion-numero"></div>
                     </div>
                 </fieldset>
 
@@ -101,7 +101,7 @@
                         </div>
                         <div id="group-booking-fields" class="form-grid full-width" style="display: none; background: #e0f7fa; padding: 15px; border-radius: 8px; border: 1px solid #b2ebf2;">
                             <div class="form-group"><label>Total Global (Ej: $10,500 USD)</label><input type="text" id="global-total"></div>
-                            <div class="form-group"><label>Mensaje Personalizado</label><input type="text" id="global-message" placeholder="Ej: Asegura tu precio enviando copia de los pasaportes"></div>
+                            <div class="form-group full-width"><label>Mensaje Personalizado</label><textarea id="global-message" placeholder="Ej: Asegura tu precio enviando copia de los pasaportes..." rows="3"></textarea></div>
                         </div>
                     </div>
                 </fieldset>
@@ -164,6 +164,7 @@
                         <div class="form-group full-width">
                             <label>Itinerario (Generar Tabla Automática)</label>
                             <button type="button" class="action-button secondary generate-itinerary-btn" data-target="PLACEHOLDER" style="padding: 10px; font-size: 14px; margin-bottom: 10px;">Generar Tabla de Itinerario</button>
+                            <button type="button" class="action-button secondary fill-ctg-btn" data-target="PLACEHOLDER" style="padding: 10px; font-size: 14px; margin-bottom: 10px; background: #008f89; color: white; border: none; margin-left: 10px;">Autocompletar Ruta CTG</button>
                             <div id="itinerary-container-PLACEHOLDER" class="itinerary-table-container"></div>
                         </div>
                         
