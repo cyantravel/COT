@@ -689,14 +689,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- RENDERIZADO DEL PDF (SEGURO Y ESTRICTO) ---
     const NAVIERA_LOGOS = {
-        'Royal Caribbean': 'https://i.imgur.com/vLgm4WP.png',
-        'Carnival Cruise Line': 'https://i.imgur.com/3jRznTz.png',
-        'MSC Cruises': 'https://i.imgur.com/N7GB1Pj.png',
+        'Royal Caribbean': 'https://i.imgur.com/73s8O1g.png',
+        'Carnival Cruise Line': 'https://i.imgur.com/cvsFAVZ.png',
+        'MSC Cruises': 'https://i.imgur.com/Yzs0Jlt.png',
         'Norwegian Cruise Line (NCL)': 'https://i.imgur.com/umtaXo7.png',
-        'Princess Cruises': 'https://i.imgur.com/W2ytAT5.png',
+        'Princess Cruises': 'https://i.imgur.com/cXdFc7o.png',
         'Celebrity Cruises': 'https://i.imgur.com/lyLHd2L.png',
-        'Disney Cruise Line': 'https://i.imgur.com/6hd8679.png',
-        'AmaWaterways': 'https://i.imgur.com/JT7LBaX.png',
+        'Disney Cruise Line': 'https://i.imgur.com/FMrBjLM.png',
+        'AmaWaterways': 'https://i.imgur.com/i9bZtHJ.png',
         'Costa Cruceros': 'https://i.imgur.com/sQaeAwI.png',
         'Virgin Voyages': 'https://i.imgur.com/Q9J5tx5.png'
     };
